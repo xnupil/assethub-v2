@@ -11,24 +11,34 @@ export function createClient() {
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
     {
       cookies: {
-        getAll() { return cookieStore.getAll() },
-        setAll(cookiesToSet: any []) {
+        getAll() {
+          return cookieStore.getAll()
+        },
+        setAll(cookiesToSet: { name: string; value: string; options?: Record<string, unknown> }[]) {
           try {
             cookiesToSet.forEach(({ name, value, options }) =>
-              cookieStore.set(name, value, options)
+              // eslint-disable-next-line @typescript-eslint/no-explicit-any
+              cookieStore.set(name, value, options as any)
             )
-          } catch { /* dipanggil dari Server Component, abaikan error */ }
+          } catch {
+            // Dipanggil dari Server Component, set cookie tidak berpengaruh
+          }
         },
       },
     }
   )
 }
 
-// Admin client dengan service_role untuk operasi yang bypass RLS (e.g. update stok manual)
+// Admin client — bypass RLS untuk operasi internal (pakai service_role)
 export function createAdminClient() {
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.SUPABASE_SERVICE_ROLE_KEY!,
-    { cookies: { getAll: () => [], setAll: () => {} } }
+    {
+      cookies: {
+        getAll: () => [],
+        setAll: (_: { name: string; value: string; options?: Record<string, unknown> }[]) => {},
+      },
+    }
   )
 }
