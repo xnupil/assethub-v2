@@ -14,14 +14,13 @@ export function createClient() {
         getAll() {
           return cookieStore.getAll()
         },
-        setAll(cookiesToSet: { name: string; value: string; options?: Record<string, unknown> }[]) {
+        setAll(cookiesToSet: any[]) {
           try {
             cookiesToSet.forEach(({ name, value, options }) =>
-              // eslint-disable-next-line @typescript-eslint/no-explicit-any
-              cookieStore.set(name, value, options as any)
+              cookieStore.set(name, value, options)
             )
-          } catch {
-            // Dipanggil dari Server Component, set cookie tidak berpengaruh
+          } catch (error) {
+            // Abaikan error jika dipanggil dari Server Component
           }
         },
       },
